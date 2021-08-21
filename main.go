@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 
 	"github.com/urfave/cli/v2"
 )
@@ -27,26 +28,28 @@ func createStackDirectory(stackName string) {
 	}
 }
 
-func populateStack(stackName string) {
+func populateStack(stackNameDirectory string) {
 	templateContents, err := os.ReadDir("./templates")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, f := range templateContents {
-		copyFile(stackName, f.Name())
+		sourceFile := fmt.Sprintf("%s/%s", "./templates", f.Name())
+		copyFile(sourceFile, stackNameDirectory)
 	}
-	fmt.Printf("Templated stack %s successfully.\n", stackName)
+	fmt.Printf("Templated stack %s successfully.\n", stackNameDirectory)
 }
 
-func copyFile(stackName, fileName string) {
-	source, err := os.Open(fmt.Sprintf("%s/%s", "./templates", fileName))
+func copyFile(sourceFile, destinationDirectory string) {
+	source, err := os.Open(sourceFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer source.Close()
-	destination, err := os.Create(fmt.Sprintf("%s/%s", stackName, fileName))
+	destinationFile := fmt.Sprintf("%s/%s", destinationDirectory, path.Base(sourceFile))
+	destination, err := os.Create(destinationFile)
 	if err != nil {
 		log.Fatal(err)
 	}
