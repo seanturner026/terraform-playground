@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 
@@ -13,7 +12,7 @@ import (
 func checkStackExists(stackName string) error {
 	directoryContents, err := os.ReadDir("./")
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("unable to read current directory %s", err)
 	}
 
 	for _, f := range directoryContents {
@@ -102,6 +101,6 @@ func main() {
 	}
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 }
