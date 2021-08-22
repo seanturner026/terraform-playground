@@ -12,7 +12,7 @@ import (
 func checkStackExists(stackName string) error {
 	directoryContents, err := os.ReadDir("./")
 	if err != nil {
-		return fmt.Errorf("unable to read current directory %s", err)
+		return fmt.Errorf("unable to read current directory %w", err)
 	}
 
 	for _, f := range directoryContents {
@@ -26,7 +26,7 @@ func checkStackExists(stackName string) error {
 func createStackDirectory(stackName string) error {
 	err := os.Mkdir(stackName, 0755)
 	if err != nil {
-		return fmt.Errorf("error creating directory %s, %s", stackName, err)
+		return fmt.Errorf("error creating directory %s, %w", stackName, err)
 	}
 	return nil
 }
@@ -34,14 +34,14 @@ func createStackDirectory(stackName string) error {
 func populateStackDirectory(stackNameDirectory string) error {
 	templateContents, err := os.ReadDir("./templates")
 	if err != nil {
-		return fmt.Errorf("unable to read templates directory, %s", err)
+		return fmt.Errorf("unable to read templates directory, %w", err)
 	}
 
 	for _, f := range templateContents {
 		sourceFile := fmt.Sprintf("%s/%s", "./templates", f.Name())
 		err = copyFile(sourceFile, stackNameDirectory)
 		if err != nil {
-			return fmt.Errorf("error while copying source to destination, %s", err)
+			return fmt.Errorf("error while copying source to destination, %w", err)
 		}
 	}
 	fmt.Printf("Templated stack %s successfully.\n", stackNameDirectory)
@@ -51,20 +51,20 @@ func populateStackDirectory(stackNameDirectory string) error {
 func copyFile(sourceFile, destinationDirectory string) error {
 	source, err := os.Open(sourceFile)
 	if err != nil {
-		return fmt.Errorf("unable to open source file %s, %s", sourceFile, err)
+		return fmt.Errorf("unable to open source file %s, %w", sourceFile, err)
 	}
 
 	defer source.Close()
 	destinationFile := fmt.Sprintf("%s/%s", destinationDirectory, path.Base(sourceFile))
 	destination, err := os.Create(destinationFile)
 	if err != nil {
-		return fmt.Errorf("unable to create destination file %s, %s", destinationFile, err)
+		return fmt.Errorf("unable to create destination file %s, %w", destinationFile, err)
 	}
 
 	defer destination.Close()
 	_, err = io.Copy(destination, source)
 	if err != nil {
-		return fmt.Errorf("unable to copy source file to destination, %s", err)
+		return fmt.Errorf("unable to copy source file to destination, %w", err)
 	}
 	return nil
 }
@@ -89,13 +89,17 @@ func main() {
 				return nil
 			}
 
-			createStackDirectory(stackName)
+			err = createStackDirectory(stackName)
 			if err != nil {
 				fmt.Println(err)
 				return nil
 			}
 
-			populateStackDirectory(stackName)
+			err = populateStackDirectory(stackName)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
 			return nil
 		},
 	}
