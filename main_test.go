@@ -7,16 +7,33 @@ import (
 )
 
 func TestCreateStackDirectory(t *testing.T) {
-	t.Run("Successfully created stack mock-stack", func(t *testing.T) {
+	t.Run("Successfully created mock stack", func(t *testing.T) {
 		const mockDirectory string = "mock-create-stack"
 
 		createStackDirectory(mockDirectory)
 		defer os.Remove(mockDirectory)
+
+		directoryContents, err := os.ReadDir("./")
+		if err != nil {
+			t.Fatalf("Unable to make read current directory, %s", err)
+		}
+
+		var mockDirectoryExists bool
+		for _, d := range directoryContents {
+			if d.Name() == mockDirectory && d.IsDir() {
+				mockDirectoryExists = true
+				break
+			}
+		}
+
+		if !mockDirectoryExists {
+			t.Fatalf("Mock directory %s never created", mockDirectory)
+		}
 	})
 }
 
 func TestPopulateStack(t *testing.T) {
-	t.Run("Successfully populated stack mock-stack", func(t *testing.T) {
+	t.Run("Successfully populated mock stack", func(t *testing.T) {
 		const mockDirectory string = "mock-populate-stack"
 		expectedTerraformFiles := []string{"main.tf", "outputs.tf", "provider.tf", "terraform.tfvars", "variables.tf"}
 
@@ -51,7 +68,7 @@ func TestPopulateStack(t *testing.T) {
 }
 
 func TestCopyFile(t *testing.T) {
-	t.Run("Successfully copied file mock-file", func(t *testing.T) {
+	t.Run("Successfully copied file mock file", func(t *testing.T) {
 		const mockDirectory string = "mock-copy-file"
 
 		err := os.Mkdir(mockDirectory, 0755)
@@ -76,6 +93,7 @@ func TestCopyFile(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unable to obtain mocked README.md file info, %s", err)
 		}
+
 		readmeFileInfo, err := readmeFile.Stat()
 		if err != nil {
 			t.Fatalf("Unable to obtain README.md file info, %s", err)
@@ -83,13 +101,9 @@ func TestCopyFile(t *testing.T) {
 
 		if mockFileInfo.Name() != readmeFileInfo.Name() {
 			t.Fatal("README.md and mocked README.md are have different names")
-		}
-
-		if mockFileInfo.Size() != readmeFileInfo.Size() {
+		} else if mockFileInfo.Size() != readmeFileInfo.Size() {
 			t.Fatal("README.md and mocked README.md are have different sizes")
-		}
-
-		if mockFileInfo.Mode() != readmeFileInfo.Mode() {
+		} else if mockFileInfo.Mode() != readmeFileInfo.Mode() {
 			t.Fatal("README.md and mocked README.md are have different modes")
 		}
 	})
