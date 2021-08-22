@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func createStackDirectory(stackName string) {
+func checkStackExists(stackName string) error {
 	directoryContents, err := os.ReadDir("./")
 	if err != nil {
 		log.Fatal(err)
@@ -18,47 +18,56 @@ func createStackDirectory(stackName string) {
 
 	for _, f := range directoryContents {
 		if f.IsDir() && f.Name() == stackName {
-			log.Fatalf("Stack %s already exists.", stackName)
+			return fmt.Errorf("stack %s already exists", stackName)
 		}
 	}
-
-	err = os.Mkdir(stackName, 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }
 
-func populateStack(stackNameDirectory string) {
+func createStackDirectory(stackName string) error {
+	err := os.Mkdir(stackName, 0755)
+	if err != nil {
+		return fmt.Errorf("error creating directory %s, %s", stackName, err)
+	}
+	return nil
+}
+
+func populateStackDirectory(stackNameDirectory string) error {
 	templateContents, err := os.ReadDir("./templates")
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("unable to read templates directory, %s", err)
 	}
 
 	for _, f := range templateContents {
 		sourceFile := fmt.Sprintf("%s/%s", "./templates", f.Name())
-		copyFile(sourceFile, stackNameDirectory)
+		err = copyFile(sourceFile, stackNameDirectory)
+		if err != nil {
+			return fmt.Errorf("error while copying source to destination, %s", err)
+		}
 	}
 	fmt.Printf("Templated stack %s successfully.\n", stackNameDirectory)
+	return nil
 }
 
-func copyFile(sourceFile, destinationDirectory string) {
+func copyFile(sourceFile, destinationDirectory string) error {
 	source, err := os.Open(sourceFile)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("unable to open source file %s, %s", sourceFile, err)
 	}
 
 	defer source.Close()
 	destinationFile := fmt.Sprintf("%s/%s", destinationDirectory, path.Base(sourceFile))
 	destination, err := os.Create(destinationFile)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("unable to create destination file %s, %s", destinationFile, err)
 	}
 
 	defer destination.Close()
 	_, err = io.Copy(destination, source)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("unable to copy source file to destination, %s", err)
 	}
+	return nil
 }
 
 func main() {
@@ -74,8 +83,20 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			stackName := c.String("s")
+
+			err := checkStackExists(stackName)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
 			createStackDirectory(stackName)
-			populateStack(stackName)
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
+			populateStackDirectory(stackName)
 			return nil
 		},
 	}

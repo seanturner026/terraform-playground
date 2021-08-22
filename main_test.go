@@ -10,9 +10,12 @@ func TestCreateStackDirectory(t *testing.T) {
 	t.Run("Successfully created mock stack", func(t *testing.T) {
 		const mockDirectory string = "mock-create-stack"
 
-		createStackDirectory(mockDirectory)
-		defer os.Remove(mockDirectory)
+		err := createStackDirectory(mockDirectory)
+		if err != nil {
+			t.Fatal(err)
+		}
 
+		defer os.Remove(mockDirectory)
 		directoryContents, err := os.ReadDir("./")
 		if err != nil {
 			t.Fatalf("Unable to make read current directory, %s", err)
@@ -32,7 +35,7 @@ func TestCreateStackDirectory(t *testing.T) {
 	})
 }
 
-func TestPopulateStack(t *testing.T) {
+func TestPopulateDirectoryStack(t *testing.T) {
 	t.Run("Successfully populated mock stack", func(t *testing.T) {
 		const mockDirectory string = "mock-populate-stack"
 		expectedTerraformFiles := []string{"main.tf", "outputs.tf", "provider.tf", "terraform.tfvars", "variables.tf"}
@@ -42,7 +45,11 @@ func TestPopulateStack(t *testing.T) {
 			t.Fatalf("Unable to make mock directory, %s", err)
 		}
 
-		populateStack(mockDirectory)
+		err = populateStackDirectory(mockDirectory)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		defer os.RemoveAll(mockDirectory)
 		mockDirectoryContents, err := os.ReadDir(mockDirectory)
 		if err != nil {
@@ -76,9 +83,12 @@ func TestCopyFile(t *testing.T) {
 			t.Fatalf("Unable to make mock directory, %s", err)
 		}
 
-		copyFile("README.md", mockDirectory)
-		defer os.RemoveAll(mockDirectory)
+		err = copyFile("README.md", mockDirectory)
+		if err != nil {
+			t.Fatal(err)
+		}
 
+		defer os.RemoveAll(mockDirectory)
 		mockFile, err := os.Open(fmt.Sprintf("%s/%s", mockDirectory, "README.md"))
 		if err != nil {
 			t.Fatalf("Unable to open mocked README.md, %s", err)
