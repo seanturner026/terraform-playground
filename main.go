@@ -10,7 +10,7 @@ import (
 )
 
 func checkStackExists(stackName string) error {
-	directoryContents, err := os.ReadDir("./")
+	directoryContents, err := os.ReadDir("./stacks")
 	if err != nil {
 		return fmt.Errorf("unable to read current directory %w", err)
 	}
@@ -81,7 +81,7 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			stackName := c.String("s")
+			stackName := "stacks/" + c.String("s")
 
 			err := checkStackExists(stackName)
 			if err != nil {
