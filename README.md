@@ -26,12 +26,6 @@ Templated stack cloudfront-functions successfully.
 $ tree
 .
 ├── README.md
-├── cloudfront-functions
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── provider.tf
-│   ├── terraform.tfvars
-│   └── variables.tf
 ├── go.mod
 ├── go.sum
 ├── main.go
