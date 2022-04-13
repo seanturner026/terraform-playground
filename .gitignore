@@ -1,4 +1,5 @@
 terraform-playground
 main
 stacks/*
+!stacks/.keep
 terraform.auto.tfvars
