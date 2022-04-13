@@ -11,6 +11,7 @@ $ tree
 ├── go.mod
 ├── go.sum
 ├── main.go
+├── stacks
 ├── templates
 │   ├── main.tf
 │   ├── outputs.tf
@@ -34,6 +35,13 @@ $ tree
 ├── go.mod
 ├── go.sum
 ├── main.go
+├── stacks
+│   └── cloudfront-functions
+│       ├──main.tf
+│       ├── outputs.tf
+│       ├── provider.tf
+│       ├── terraform.tfvars
+│       └── variables.tf
 ├── templates
 │   ├── main.tf
 │   ├── outputs.tf
